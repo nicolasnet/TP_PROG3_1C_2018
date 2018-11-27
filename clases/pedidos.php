@@ -5,10 +5,12 @@ require_once "./clases/AccesoDatos.php";
 class pedido{
 
     public $usuario;
+    public $prefijoP;
     public $codigo;
     public $estado;
     public $fecha;
     public $precio;
+        
     
 
     public static function crearPedido($arrayDeParametros, $usuario){
