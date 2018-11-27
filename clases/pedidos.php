@@ -2,6 +2,14 @@
 use \Firebase\JWT\JWT;
 require_once "./clases/AccesoDatos.php";
 
+
+/*
+SELECT DATEDIFF(hora_ingreso, "2017-06-15 15:25:35") as hora, id, nombre
+from tabla
+where codigo=xxxx
+*/
+
+
 class pedido{
 
     public $usuario;
