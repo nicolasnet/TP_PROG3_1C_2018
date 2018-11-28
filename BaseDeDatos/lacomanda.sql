@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 20-11-2018 a las 02:26:15
+-- Tiempo de generación: 28-11-2018 a las 23:58:03
 -- Versión del servidor: 10.1.35-MariaDB
 -- Versión de PHP: 7.2.9
 
@@ -61,8 +61,29 @@ CREATE TABLE `menu` (
   `id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `producto` varchar(50) COLLATE utf8_spanish2_ci NOT NULL,
   `sector` enum('cocina','barra','cerveza','candy') COLLATE utf8_spanish2_ci NOT NULL,
-  `precio` float(4,2) NOT NULL
+  `precio` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+
+--
+-- Volcado de datos para la tabla `menu`
+--
+
+INSERT INTO `menu` (`id`, `producto`, `sector`, `precio`) VALUES
+(001, 'pizza muzarella', 'cocina', 210),
+(002, 'hamburgueza', 'cocina', 100),
+(003, 'agua chica', 'barra', 50),
+(004, 'copa helada', 'candy', 80),
+(005, 'flan', 'candy', 65),
+(006, 'cerveza negra chica', 'cerveza', 60),
+(007, 'cerveza negra grande', 'cerveza', 80),
+(008, 'cerveza rubia chica', 'cerveza', 55),
+(009, 'cerveza rubia grande', 'cerveza', 75),
+(010, 'ravioles verdura', 'cocina', 110),
+(011, 'sorrentinos', 'cocina', 120),
+(012, 'gaseosa chica', 'barra', 55),
+(013, 'fernet', 'barra', 115),
+(014, 'empanada carne', 'cocina', 35),
+(015, 'provoleta', 'cocina', 45);
 
 -- --------------------------------------------------------
 
@@ -91,7 +112,23 @@ INSERT INTO `mesas` (`prefijo`, `id`, `estado`, `limpia`) VALUES
 ('ME', 007, 'cerrada', 'true'),
 ('ME', 008, 'cerrada', 'true'),
 ('ME', 009, 'cerrada', 'true'),
-('ME', 010, 'cerrada', 'true');
+('ME', 010, 'cerrada', 'true'),
+('ME', 011, 'cerrada', 'true');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedido_producto`
+--
+
+CREATE TABLE `pedido_producto` (
+  `idPedido` varchar(5) COLLATE utf8_spanish2_ci NOT NULL,
+  `idProducto` bigint(5) UNSIGNED ZEROFILL NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `precio` int(11) NOT NULL,
+  `estado` enum('pendiente','en preparacion','listo para servir','') COLLATE utf8_spanish2_ci NOT NULL,
+  `tiempo` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 -- --------------------------------------------------------
 
@@ -163,13 +200,13 @@ ALTER TABLE `datos_ingresos`
 -- AUTO_INCREMENT de la tabla `menu`
 --
 ALTER TABLE `menu`
-  MODIFY `id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `mesas`
 --
 ALTER TABLE `mesas`
-  MODIFY `id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
