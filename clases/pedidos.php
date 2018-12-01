@@ -78,7 +78,7 @@ class pedido{
     }
 
 
-    public static function TraerUnoPorUsuario($usuario){
+    public static function TraerPorUsuario($usuario){
         //var_dump($usuario);
 
         $pdo = AccesoDatos::dameUnObjetoAcceso();

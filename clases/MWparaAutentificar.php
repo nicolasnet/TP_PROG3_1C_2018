@@ -1,7 +1,7 @@
 <?php
 
 require_once './clases/AutJWT.php';
-//require_once './clases/compraApi.php';
+require_once './clases/pedidosApi.php';
 
 class MWparaAutentificar
 {
@@ -156,11 +156,11 @@ class MWparaAutentificar
 
 
 
-	public function VerificarPerfilUsuario($request, $response, $next) {
-	   $objDelaRespuesta= new stdclass();
-	   $objDelaRespuesta->respuesta="";
-	  
-	   
+	public function VerificarPerfilSocio($request, $response, $next) {
+		$objDelaRespuesta= new stdclass();
+		$objDelaRespuesta->respuesta="";
+		
+		
 		$arrayConToken = $request->getHeader('token');
 		$token=$arrayConToken[0];			
 		
@@ -198,79 +198,136 @@ class MWparaAutentificar
 
 		}  
 
-	   if($objDelaRespuesta->respuesta!="")
-	   {
-		   $nueva=$response->withJson($objDelaRespuesta, 401);
-		   return $nueva;
-	   }
-		 
+		if($objDelaRespuesta->respuesta!="")
+		{
+			$nueva=$response->withJson($objDelaRespuesta, 401);
+			return $nueva;
+		}
+			
 		//$response->getBody()->write('<p>vuelvo del verificador de credenciales</p>');
 		return $response;   
-   }
+   	}
 
 
 
 
 
-
-
-
-
-
-
-   public function VerificarPerfilUsuarioCompras($request, $response, $next) {
-	$objDelaRespuesta= new stdclass();
-	$objDelaRespuesta->respuesta="";
-   
+   	public function VerificarHacerPedido($request, $response, $next) {
+		$objDelaRespuesta= new stdclass();
+		$objDelaRespuesta->respuesta="";
 	
-	 $arrayConToken = $request->getHeader('token');
-	 $token=$arrayConToken[0];
-	 
-	 //var_dump($token);
-	 $objDelaRespuesta->esValido="";
-	 try 
-	 {				
-		 AutJWT::VerificarToken($token);
-		 $objDelaRespuesta->esValido=true; 
-	 }
-	 catch (Exception $e) {      
-		 //guardar en un log
-		 $objDelaRespuesta->excepcion=$e->getMessage();
-		 $objDelaRespuesta->esValido=false;     
-	 }
+		
+		$arrayConToken = $request->getHeader('token');
+		$token=$arrayConToken[0];			
+		
+		//var_dump($token);
+		$objDelaRespuesta->esValido="";
+		try 
+		{				
+			AutJWT::VerificarToken($token);
+			$objDelaRespuesta->esValido=true; 
+		}
+		catch (Exception $e) {      
+			//guardar en un log
+			$objDelaRespuesta->excepcion=$e->getMessage();
+			$objDelaRespuesta->esValido=false;     
+		}
 
-	 if($objDelaRespuesta->esValido)
-	 {		 
-		$payload=AutJWT::ObtenerData($token);
-			if($payload[0]->perfil=="admin")
+		if($objDelaRespuesta->esValido)
+		{
+			
+			$payload=AutJWT::ObtenerData($token);
+			if($payload[0]->perfil=="socio" || $payload[0]->perfil=="mozo")
 			{
 				$response = $next($request, $response);
 			}		           	
 			else
 			{	
-				$objDelaRespuesta->respuesta= compraApi:: traerUno($request, $response);
-			}		  
-	 }    
-	 else
-	 {
-		 //   $response->getBody()->write('<p>no tenes habilitado el ingreso</p>');
-		 $objDelaRespuesta->respuesta="Solo usuarios registrados";
-		 $objDelaRespuesta->elToken=$token;
+				$objDelaRespuesta->respuesta="Exclusivo uso de Socios o Mozos"; 
+			}		          
+		}    
+		else
+		{
+			//   $response->getBody()->write('<p>no tenes habilitado el ingreso</p>');
+			$objDelaRespuesta->respuesta="Solo usuarios registrados";
+			$objDelaRespuesta->elToken=$token;
 
-	 }  
+		}  
 
-	if($objDelaRespuesta->respuesta!="")
-	{
-		$nueva=$response->withJson($objDelaRespuesta, 401);
-		return $nueva;
+		if($objDelaRespuesta->respuesta!="")
+		{
+			$nueva=$response->withJson($objDelaRespuesta, 401);
+			return $nueva;
+		}
+		
+		//$response->getBody()->write('<p>vuelvo del verificador de credenciales</p>');
+		return $response;   
 	}
-	  
-	 //$response->getBody()->write('<p>vuelvo del verificador de credenciales</p>');
-	 return $response;   
-}
 
 
-   public function GuardarUsuarioRuta($request, $response, $next) {
+
+
+
+
+
+	public function VerificarGetPedidos($request, $response, $next) {
+		$objDelaRespuesta= new stdclass();
+		$objDelaRespuesta->respuesta="";
+
+		$arrayConToken = $request->getHeader('token');
+		$token=$arrayConToken[0];
+		
+		//var_dump($token);
+		$objDelaRespuesta->esValido="";
+		try 
+		{				
+			AutJWT::VerificarToken($token);
+			$objDelaRespuesta->esValido=true; 
+		}
+		catch (Exception $e) {      
+			//guardar en un log
+			$objDelaRespuesta->excepcion=$e->getMessage();
+			$objDelaRespuesta->esValido=false;     
+		}
+
+		if($objDelaRespuesta->esValido)
+		{		 
+			$payload=AutJWT::ObtenerData($token);
+
+			switch($payload[0]->perfil){
+				case "socio":
+					$response = $next($request, $response);
+					break;
+
+				case "mozo":
+					$objDelaRespuesta->respuesta= pedidosApi:: traerPedidoUsuario($request, $response);
+					break;
+					
+				default:
+					$objDelaRespuesta->respuesta="Exclusivo uso de Socios o Mozos";
+					break;
+			}
+		}    
+		else
+		{
+			//   $response->getBody()->write('<p>no tenes habilitado el ingreso</p>');
+			$objDelaRespuesta->respuesta="Solo usuarios registrados";
+			$objDelaRespuesta->elToken=$token;
+		}  
+
+		if($objDelaRespuesta->respuesta!="")
+		{
+			$nueva=$response->withJson($objDelaRespuesta, 401);
+			return $nueva;
+		}
+		//$response->getBody()->write('<p>vuelvo del verificador de credenciales</p>');
+		return $response;   
+	}
+
+
+
+
+	public function GuardarUsuarioRuta($request, $response, $next) {
         $objDelaRespuesta= new stdclass();
         $objDelaRespuesta->respuesta="";
         

@@ -15,6 +15,7 @@ class pedidosApi{
         $payload=AutJWT::ObtenerData($token);        
         
         $respuesta = pedido::crearPedido($arrayDeParametros, $payload[0]->id);
+        echo("Aca va la respuesta de la insercion en sql: \n");
         //var_dump($respuesta);
         //var_dump($arrayDeParametros);
         //var_dump(json_decode ($arrayDeParametros["productos"]));
@@ -24,7 +25,7 @@ class pedidosApi{
         $foto= $archivos['imagen'];
         
 */
-        if(!is_null($respuesta)){
+        if(!is_string($respuesta)){
 /*
             $nuevaCarpeta="IMGpedidos";
             if(!file_exists($nuevaCarpeta))
@@ -59,6 +60,7 @@ class pedidosApi{
             }
 
             $objDelaRespuesta->respuesta="Nuevo pedido creado.";
+            $objDelaRespuesta->codigo=$respuesta[0]->codigo;
         }
         else{
             $objDelaRespuesta->respuesta=$respuesta;   
@@ -68,24 +70,32 @@ class pedidosApi{
     }
 
 
+
+
     public function traerTodos($request, $response, $args){   
         $pedidos = pedido::TraerTodos();
         $newResponse = $response->withJson($pedidos, 200);
         return $newResponse;
     }
 
-
-    public function traerUnoUsuario($request, $response){
+    
+    
+    public function traerPedidoUsuario($request, $response){
         $arrayConToken = $request->getHeader('token');
 	    $token=$arrayConToken[0];
         $payload=AutJWT::ObtenerData($token);
         //var_dump($payload);
         //var_dump($payload[0]->email);
         
-        $pedidos = pedido::TraerUnoPorUsuario($payload[0]->email);
+        $pedidos = pedido::TraerPorUsuario($payload[0]->id);
         $newResponse = $pedidos;
         return $newResponse;
     }
+
+
+
+
+
 
 
     public function traerUnoMarca($request, $response){

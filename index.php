@@ -29,7 +29,7 @@ $app = new \Slim\App(["settings" => $config]);
 
 //entrada de prueba!!!!
 $app->get('/prueba', function(){
-    echo(generateRandomString(5,"P"));
+    echo(AutJWT::generateRandomString(5,"P"));
 });
 
 
@@ -41,17 +41,16 @@ $app->group('', function () {
     $this->group('/usuario', function(){
         $this->get('/', \loginApi::class. ':traerTodos');
         $this->post('/', \loginApi::class. ':nuevoUsuario');
-    })->add(\MWparaAutentificar::class . ':VerificarPerfilUsuario');
+    })->add(\MWparaAutentificar::class . ':VerificarPerfilSocio');
 
     
     $this->group('/Pedido', function(){
-        $this->post('/', \pedidosApi::class. ':nuevoPedido')->add(\MWparaAutentificar::class . ':VerificarJWT');
+        $this->post('/', \pedidosApi::class. ':nuevoPedido')->add(\MWparaAutentificar::class . ':VerificarHacerPedido');        
+        $this->get('/', \pedidosApi::class. ':traerTodos')->add(\MWparaAutentificar::class . ':VerificarGetPedidos');
+        
         
         /*
-        
-        $this->get('/', \pedidosApi::class. ':traerTodos')->add(\MWparaAutentificar::class . ':VerificarPerfilUsuarioCompras');
-        
-        $this->get('/marca', \pedidosApi::class. ':traerTodosMarca')->add(\MWparaAutentificar::class . ':VerificarPerfilUsuario');    
+        $this->get('/marca', \pedidosApi::class. ':traerTodosMarca')->add(\MWparaAutentificar::class . ':VerificarPerfilSocio');    
         */
     });
 
