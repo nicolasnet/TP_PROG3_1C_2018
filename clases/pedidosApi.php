@@ -14,26 +14,51 @@ class pedidosApi{
         $token=$arrayConToken[0];
         $payload=AutJWT::ObtenerData($token);        
         
-        $respuesta = compra::crearPedido($arrayDeParametros, $payload[0]->usuario);
-
-
-        $archivos = $request->getUploadedFiles();
-        
-        $foto= $archivos['imagen'];
+        $respuesta = pedido::crearPedido($arrayDeParametros, $payload[0]->id);
         //var_dump($respuesta);
+        //var_dump($arrayDeParametros);
+        //var_dump(json_decode ($arrayDeParametros["productos"]));
+/*
+        $archivos = $request->getUploadedFiles();
 
-        if($respuesta>0){
-
+        $foto= $archivos['imagen'];
+        
+*/
+        if(!is_null($respuesta)){
+/*
             $nuevaCarpeta="IMGpedidos";
             if(!file_exists($nuevaCarpeta))
             {
                 mkdir($nuevaCarpeta);
             }
-            $nuevoNombre="./".$nuevaCarpeta."/".$respuesta."-".$arrayDeParametros["marca"]."-".$arrayDeParametros["modelo"].".jpg";
+            $nuevoNombre="./".$nuevaCarpeta."/".$respuesta."-".$arrayDeParametros["codigo"]."-".$arrayDeParametros["modelo"].".jpg";
             //var_dump($nuevoNombre);
             $foto->moveTo($nuevoNombre);
+*/
 
-            $objDelaRespuesta->respuesta="Nueva compra guardado.";
+/* Asi es como hay q pasar los prductos por el Postman
+ [
+        {
+            "idProducto": 1,
+            "cantidad": 2
+        },
+        {
+            "idProducto": 6,
+            "cantidad": 1
+        },
+        {
+            "idProducto": 2,
+            "cantidad": 1
+        }
+    ]
+*/
+
+            foreach (json_decode($arrayDeParametros["productos"]) as $objeto) {
+                //var_dump($objeto->cantidad);
+                pedido::agregarProducto($objeto, $respuesta[0]->codigo);
+            }
+
+            $objDelaRespuesta->respuesta="Nuevo pedido creado.";
         }
         else{
             $objDelaRespuesta->respuesta=$respuesta;   
@@ -44,7 +69,7 @@ class pedidosApi{
 
 
     public function traerTodos($request, $response, $args){   
-        $pedidos = compra::TraerTodos();
+        $pedidos = pedido::TraerTodos();
         $newResponse = $response->withJson($pedidos, 200);
         return $newResponse;
     }
@@ -57,7 +82,7 @@ class pedidosApi{
         //var_dump($payload);
         //var_dump($payload[0]->email);
         
-        $pedidos = compra::TraerUnoPorUsuario($payload[0]->email);
+        $pedidos = pedido::TraerUnoPorUsuario($payload[0]->email);
         $newResponse = $pedidos;
         return $newResponse;
     }
@@ -65,7 +90,7 @@ class pedidosApi{
 
     public function traerUnoMarca($request, $response){
         
-        $pedidos = compra::TraerPorCodigo($_GET["marca"]);
+        $pedidos = pedido::TraerPorCodigo($_GET["marca"]);
         //var_dump($pedidos);
         $newResponse = $response->withJson($pedidos, 200);
         return $newResponse;
@@ -74,15 +99,15 @@ class pedidosApi{
     /*
     public function traerProductos($request, $response){
         
-        $listadoPedidos = compra::TraerTodosProductos();
+        $listadoPedidos = pedido::TraerTodosProductos();
         $output = array();
         var_dump($listadoPedidos);
-        foreach($listadoPedidos as $compra)
+        foreach($listadoPedidos as $pedido)
         {
-            $objeto = "{'marca':".$compra->marca.", 'modelo':". $compra->modelo."}";
+            $objeto = "{'marca':".$pedido->marca.", 'modelo':". $pedido->modelo."}";
             var_dump(json_decode($objeto));
 
-            array_push($output, $compra->marca." ".$compra->modelo);
+            array_push($output, $pedido->marca." ".$pedido->modelo);
         }
 
         $newResponse = $response->withJson($output, 200);

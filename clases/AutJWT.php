@@ -7,6 +7,20 @@ class AutJWT
     private static $claveSecreta = 'comandaClaveSecretaGomezNicolas@';
     private static $tipoEncriptacion = ['HS256'];
     private static $aud = null;
+
+
+    function generateRandomString($length, $fijosIniciales="") {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = $fijosIniciales;
+        for ($i = 0; $i < $length - strlen($fijosIniciales) ; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+    
+   
+
     
     public static function CrearToken($datos)
     {

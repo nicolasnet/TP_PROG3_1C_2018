@@ -23,16 +23,6 @@ desarrollo para obtener información sobre los errores
 */
 
 
-function generateRandomString($length, $fijosIniciales="") {
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
-    $charactersLength = strlen($characters);
-    $randomString = $fijosIniciales;
-    for ($i = 0; $i < $length - strlen($fijosIniciales) ; $i++) {
-        $randomString .= $characters[rand(0, $charactersLength - 1)];
-    }
-    return $randomString;
-}
-
 
 $app = new \Slim\App(["settings" => $config]);
 
@@ -53,19 +43,23 @@ $app->group('', function () {
         $this->post('/', \loginApi::class. ':nuevoUsuario');
     })->add(\MWparaAutentificar::class . ':VerificarPerfilUsuario');
 
+    
+    $this->group('/Pedido', function(){
+        $this->post('/', \pedidosApi::class. ':nuevoPedido')->add(\MWparaAutentificar::class . ':VerificarJWT');
+        
+        /*
+        
+        $this->get('/', \pedidosApi::class. ':traerTodos')->add(\MWparaAutentificar::class . ':VerificarPerfilUsuarioCompras');
+        
+        $this->get('/marca', \pedidosApi::class. ':traerTodosMarca')->add(\MWparaAutentificar::class . ':VerificarPerfilUsuario');    
+        */
+    });
 
 
 
     /*
-    $this->group('/Compra', function(){
-        $this->get('/', \compraApi::class. ':traerTodos')->add(\MWparaAutentificar::class . ':VerificarPerfilUsuarioCompras');
-        $this->post('/', \compraApi::class. ':nuevaCompra')->add(\MWparaAutentificar::class . ':VerificarJWT');
-        $this->get('/marca', \compraApi::class. ':traerTodosMarca')->add(\MWparaAutentificar::class . ':VerificarPerfilUsuario');    
-
-    });
-
     $this->group('/productos', function(){
-        $this->get('/', \compraApi::class. ':traerProductos');
+        $this->get('/', \pedidosApi::class. ':traerProductos');
     });
     */
 
