@@ -7,6 +7,22 @@ require_once './clases/AutJWT.php';
 SELECT DATEDIFF(hora_ingreso, "2017-06-15 15:25:35") as hora, id, nombre
 from tabla
 where codigo=xxxx
+
+
+
+SELECT TIMESTAMPDIFF(MINUTE,`fechaInicio`, "2018-12-01 19:42:37") as LAhora, codigo, idProducto, estado, fechaInicio
+from pedido_producto
+where codigo="JwN68"
+
+
+SELECT (`fechaInicio`+ INTERVAL 2 MINUTE) as LAhora, fechaInicio, codigo
+from pedido_producto
+where codigo="JwN68"
+
+
+UPDATE `pedido_producto` SET `tiempo`=2,`fechaTerminado`=(`fechaInicio`+ INTERVAL 2 MINUTE)
+where codigo="JwN68" AND idProducto=1
+
 */
 
 
@@ -45,25 +61,6 @@ class pedido{
     }
 
 
-
-    public function agregarProducto($json, $codigo)
-    {
-        $pdo = AccesoDatos::dameUnObjetoAcceso();
-        try{
-            $sql =$pdo->RetornarConsulta("INSERT into pedido_producto (codigo, idProducto, cantidad)values(:codigo,:idProducto,:cantidad)");
-            
-            $sql->bindValue(':codigo', $codigo, PDO::PARAM_STR);         
-            $sql->bindValue(':idProducto', $json->idProducto, PDO::PARAM_INT);
-            $sql->bindValue(':cantidad', $json->cantidad, PDO::PARAM_INT);
-
-            $sql->execute();
-            return $sql->rowCount();
-        }
-        catch(Exception $e){
-            return $e->getMessage();
-        }
-        
-    }
 
 
     public static function TraerTodos(){

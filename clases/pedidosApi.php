@@ -1,6 +1,7 @@
 <?php
 require_once './composer/vendor/autoload.php';
 require_once './clases/pedidos.php';
+require_once './clases/pedido_producto.php';
 require_once './clases/AutJWT.php';
 
 class pedidosApi{
@@ -56,7 +57,7 @@ class pedidosApi{
 
             foreach (json_decode($arrayDeParametros["productos"]) as $objeto) {
                 //var_dump($objeto->cantidad);
-                pedido::agregarProducto($objeto, $respuesta[0]->codigo);
+                pedido_producto::agregarProducto($objeto, $respuesta[0]->codigo);
             }
 
             $objDelaRespuesta->respuesta="Nuevo pedido creado.";
@@ -93,6 +94,16 @@ class pedidosApi{
     }
 
 
+    public function traerProductosPendientes($request, $response){
+        $arrayConToken = $request->getHeader('token');
+	    $token=$arrayConToken[0];
+        $payload=AutJWT::ObtenerData($token);
+        //var_dump($payload);
+        //var_dump($payload[0]->email);
+        
+        $newResponse = pedido_producto::TraerProductosPorPerfil($payload[0]->perfil, $payload[0]->id);
+        return $response->withJson($newResponse, 200);
+    }
 
 
 
