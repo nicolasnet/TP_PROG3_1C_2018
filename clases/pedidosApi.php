@@ -9,25 +9,22 @@ class pedidosApi{
     public function nuevoPedido($request, $response, $args){
 
         $arrayDeParametros = $request->getParsedBody();
-
-        //var_dump($request->getParsedBody());
         $arrayConToken = $request->getHeader('token');
         $token=$arrayConToken[0];
         $payload=AutJWT::ObtenerData($token);        
         
         $respuesta = pedido::crearPedido($arrayDeParametros, $payload[0]->id);
-        echo("Aca va la respuesta de la insercion en sql: \n");
         //var_dump($respuesta);
         //var_dump($arrayDeParametros);
         //var_dump(json_decode ($arrayDeParametros["productos"]));
-/*
+/*imagen
         $archivos = $request->getUploadedFiles();
 
         $foto= $archivos['imagen'];
         
 */
         if(!is_string($respuesta)){
-/*
+/*imagen
             $nuevaCarpeta="IMGpedidos";
             if(!file_exists($nuevaCarpeta))
             {
@@ -38,21 +35,21 @@ class pedidosApi{
             $foto->moveTo($nuevoNombre);
 */
 
-/* Asi es como hay q pasar los prductos por el Postman
- [
-        {
-            "idProducto": 1,
-            "cantidad": 2
-        },
-        {
-            "idProducto": 6,
-            "cantidad": 1
-        },
-        {
-            "idProducto": 2,
-            "cantidad": 1
-        }
-    ]
+/* Asi es como hay q pasar los productos por el Postman
+        [
+            {
+                "idProducto": 1,
+                "cantidad": 2
+            },
+            {
+                "idProducto": 6,
+                "cantidad": 1
+            },
+            {
+                "idProducto": 2,
+                "cantidad": 1
+            }
+        ]
 */
 
             foreach (json_decode($arrayDeParametros["productos"]) as $objeto) {
@@ -70,6 +67,32 @@ class pedidosApi{
         return $response->withJson($objDelaRespuesta, 200);
     }
 
+
+
+    public function actualizarEnPreparacion($request, $response, $args){
+
+        $arrayDeParametros = $request->getParsedBody();
+        $arrayConToken = $request->getHeader('token');
+        $token=$arrayConToken[0];
+        $payload=AutJWT::ObtenerData($token);        
+        
+        $respuesta = pedido_producto::actualizarProductoEnPreparacion($arrayDeParametros, $payload[0]->id);
+        var_dump($respuesta);
+        var_dump($arrayDeParametros);
+        if($respuesta>0){
+
+            $objDelaRespuesta->respuesta="Nuevo producto en preparacion.";
+            $objDelaRespuesta->codigo=$arrayDeParametros["codigo"];
+            $objDelaRespuesta->idProducto=$arrayDeParametros["idProducto"];
+
+        }
+        else{
+            $objDelaRespuesta->respuesta=$respuesta;   
+        }
+        
+        return $response->withJson($objDelaRespuesta, 200);
+    }
+    
 
 
 
@@ -93,6 +116,9 @@ class pedidosApi{
         return $newResponse;
     }
 
+    
+
+    //pedido_producto
 
     public function traerProductosPendientes($request, $response){
         $arrayConToken = $request->getHeader('token');
@@ -109,6 +135,10 @@ class pedidosApi{
 
 
 
+
+
+ /*
+
     public function traerUnoMarca($request, $response){
         
         $pedidos = pedido::TraerPorCodigo($_GET["marca"]);
@@ -117,7 +147,7 @@ class pedidosApi{
         return $newResponse;
     }
     
-    /*
+   
     public function traerProductos($request, $response){
         
         $listadoPedidos = pedido::TraerTodosProductos();

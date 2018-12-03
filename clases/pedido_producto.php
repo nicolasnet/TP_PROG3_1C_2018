@@ -87,12 +87,44 @@ class pedido_producto{
     }
 
 
+
+    public function actualizarProductoEnPreparacion($arrayDeParametros, $usuario)
+    {
+        $pdo = AccesoDatos::dameUnObjetoAcceso();
+        try{
+            $sql =$pdo->RetornarConsulta("UPDATE pedido_producto AS pp
+            INNER JOIN menu AS m ON pp.idProducto = m.id
+            SET pp.precio = m.precio*pp.cantidad,
+                pp.tiempo = :tiempo,
+                pp.fechaTerminado=(pp.fechaInicio + INTERVAL :tiemposuma MINUTE),
+                pp.usuario = :usuario,
+                pp.estado= :estado
+            WHERE pp.codigo=:codigo AND pp.idProducto=:idProducto");
+            
+            $sql->bindValue(':codigo', $arrayDeParametros['codigo'], PDO::PARAM_STR);
+            $sql->bindValue(':usuario', $usuario, PDO::PARAM_INT);
+            $sql->bindValue(':estado', 2, PDO::PARAM_INT);
+            $sql->bindValue(':tiempo', $arrayDeParametros['tiempo'], PDO::PARAM_INT);
+            $sql->bindValue(':tiemposuma', $arrayDeParametros['tiempo'], PDO::PARAM_INT);
+            $sql->bindValue(':idProducto', $arrayDeParametros['idProducto'], PDO::PARAM_INT);
+
+            $sql->execute();
+            return $sql->rowCount();
+        }
+        catch(Exception $e){
+            return $e->getMessage();
+        }
+        
+    }
+
+
+
     public static function TraerTodos(){
         $pdo = AccesoDatos::dameUnObjetoAcceso();
         $sql = $pdo->RetornarConsulta("select * from pedido_producto");
         $sql->execute();
 
-        $resultado = $sql->fetchall(PDO::FETCH_CLASS, "pedido");   
+        $resultado = $sql->fetchall(PDO::FETCH_CLASS, "pedido_producto");   
 
         return $resultado;
     }    
@@ -105,10 +137,9 @@ class pedido_producto{
         $sql->bindValue(':codigo',$codigo, PDO::PARAM_STR);
         $sql->execute();
 
-        $resultado = $sql->fetchall(PDO::FETCH_CLASS, "pedido");
+        $resultado = $sql->fetchall(PDO::FETCH_CLASS, "pedido_producto");
         
         return $resultado;
-
     }
 
 
@@ -148,6 +179,9 @@ class pedido_producto{
         return $resultado;
 
     }
+
+
+    
 
 
     public static function TraerPorUsuario($usuario){

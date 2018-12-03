@@ -47,7 +47,7 @@ $app->group('', function () {
     $this->group('/Pedido', function(){
         $this->post('/', \pedidosApi::class. ':nuevoPedido')->add(\MWparaAutentificar::class . ':VerificarHacerPedido');        
         $this->get('/', \pedidosApi::class. ':traerTodos')->add(\MWparaAutentificar::class . ':VerificarGetPedidos');
-
+         
         /*
         $this->get('/marca', \pedidosApi::class. ':traerTodosMarca')->add(\MWparaAutentificar::class . ':VerificarPerfilSocio');    
         */
@@ -55,7 +55,8 @@ $app->group('', function () {
 
 
     $this->group('/productos', function(){
-        $this->get('/pendientes', \pedidosApi::class. ':traerProductosPendientes');
+        $this->get('/pendientes', \pedidosApi::class. ':traerProductosPendientes')->add(\MWparaAutentificar::class . ':VerificarJWT');
+        $this->post('/preparacion', \pedidosApi::class. ':actualizarEnPreparacion')->add(\MWparaAutentificar::class . ':VerificarJWT');
     });
 
 

@@ -10,7 +10,7 @@ class loginApi{
         //var_dump($arrayDeParametros);
         //var_dump($arrayDeParametros["user"]);
         $respuesta = login::consultaLogin($arrayDeParametros);
-        var_dump($respuesta);
+        //var_dump($respuesta);
 
         if($respuesta != NULL)
             $newResponse = $response->withJson(AutJWT::CrearToken($respuesta), 200);
