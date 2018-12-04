@@ -127,8 +127,9 @@ class pedido{
             $sql =$pdo->RetornarConsulta("UPDATE pedidos AS p
             INNER JOIN pedido_producto AS pp ON pp.codigo = p.codigo
             SET p.estado= 3,
+                pp.estado=3,
                 p.precioFinal = :precioFinal
-            WHERE p.codigo=:codigo AND pp.estado=3");
+            WHERE p.codigo=:codigo AND pp.estado=2 OR pp.estado=3");
             
             $sql->bindValue(':codigo', $arrayDeParametros['codigo'], PDO::PARAM_STR);
             $sql->bindValue(':precioFinal', $precioFinal, PDO::PARAM_INT);

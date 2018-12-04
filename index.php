@@ -82,7 +82,7 @@ $app->group('', function () {
     $this->group('/mesa', function(){
         $this->get('/', \mesasApi::class. ':nuevaMesa')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');
         $this->get('/todas', \mesasApi::class. ':traerTodas')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');
-        $this->post('/traerPorEstado', \mesasApi::class. ':traerPorEstado')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');
+        $this->post('/traerPorEstado', \mesasApi::class. ':traerPorEstado')->add(\MWparaAutentificar::class . ':VerificarJWT');
         $this->post('/limpiar', \mesasApi::class. ':actualizarLimpia')->add(\MWparaAutentificar::class . ':VerificarJWT');
     });
 

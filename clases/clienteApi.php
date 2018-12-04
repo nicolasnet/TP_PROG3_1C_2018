@@ -7,11 +7,16 @@ class clienteApi{
     public function consulta($request, $response, $args){
         $arrayDeParametros = $request->getParsedBody(); 
         $respuesta = cliente::consultaPedido($arrayDeParametros);
-        
+        //var_dump($respuesta);
         if($respuesta != NULL)
-            $newResponse = $response->withJson($respuesta, 200);
+            if($respuesta[0]->estado = "pagado" || $respuesta[0]->estado = "servido"){
+                $newResponse = $response->withJson("el pedido ya esta listo", 200);
+            }else{
+                $newResponse = $response->withJson($respuesta, 200);
+            }
+            
         else
-            $newResponse = $response->withJson("", 404);
+            $newResponse = $response->withJson("error", 404);
 
         return $newResponse;        
     }

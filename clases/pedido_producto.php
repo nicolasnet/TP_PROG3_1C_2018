@@ -246,7 +246,7 @@ class pedido_producto{
         //var_dump($usuario);
 
         $pdo = AccesoDatos::dameUnObjetoAcceso();
-        $sql = $pdo->RetornarConsulta("SELECT pp.codigo, pp.idProducto, pp.cantidad, pp.fechaInicio, p.mesa, p.cliente FROM pedido_producto AS pp INNER JOIN pedidos AS p ON pp.codigo = p.codigo WHERE p.usuario=:usuario");
+        $sql = $pdo->RetornarConsulta("SELECT pp.codigo, pp.idProducto, pp.cantidad, pp.estado, pp.fechaInicio, p.mesa, p.cliente FROM pedido_producto AS pp INNER JOIN pedidos AS p ON pp.codigo = p.codigo WHERE p.usuario=:usuario");
         $sql->bindValue(':usuario',$usuario, PDO::PARAM_STR);
         $sql->execute();
 
