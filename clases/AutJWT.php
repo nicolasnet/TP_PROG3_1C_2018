@@ -17,9 +17,7 @@ class AutJWT
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
         return $randomString;
-    }
-    
-   
+    }  
 
     
     public static function CrearToken($datos)

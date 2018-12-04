@@ -5,7 +5,10 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 require_once './composer/vendor/autoload.php';
 require_once './clases/loginApi.php';
+require_once './clases/clienteApi.php';
+require_once './clases/mesasApi.php';
 require_once './clases/pedidosApi.php';
+require_once './clases/pedido_productoApi.php';
 require_once './clases/MWparaAutentificar.php';
 
 $config['displayErrorDetails'] = true;
@@ -29,11 +32,21 @@ $app = new \Slim\App(["settings" => $config]);
 
 //entrada de prueba!!!!
 $app->get('/prueba', function(){
-    echo(AutJWT::generateRandomString(5,"P"));
+    echo("conectado");
 });
 
 
 $app->post('/login', \loginApi::class. ':consulta');
+
+
+
+$app->group('/clientes', function(){
+    $this->post('/estado', \clienteApi::class. ':consulta');
+    $this->post('/encuesta', \clienteApi::class. ':nuevaEncuesta');
+});
+
+
+
 
 
 $app->group('', function () {
@@ -41,23 +54,38 @@ $app->group('', function () {
     $this->group('/usuario', function(){
         $this->get('/', \loginApi::class. ':traerTodos');
         $this->post('/', \loginApi::class. ':nuevoUsuario');
+        $this->post('/estado', \loginApi::class. ':darDeBajaUsuario');
     })->add(\MWparaAutentificar::class . ':VerificarPerfilSocio');
 
     
     $this->group('/Pedido', function(){
-        $this->post('/', \pedidosApi::class. ':nuevoPedido')->add(\MWparaAutentificar::class . ':VerificarHacerPedido');        
+        $this->post('/', \pedidosApi::class. ':nuevoPedido')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');      
         $this->get('/', \pedidosApi::class. ':traerTodos')->add(\MWparaAutentificar::class . ':VerificarGetPedidos');
-         
-        /*
-        $this->get('/marca', \pedidosApi::class. ':traerTodosMarca')->add(\MWparaAutentificar::class . ':VerificarPerfilSocio');    
-        */
+        $this->post('/listoServir', \pedidosApi::class. ':actualizarPedidoListoParaServir')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');
+        $this->post('/servido', \pedidosApi::class. ':actualizarPedidoServido')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');
+        $this->post('/aPagar', \pedidosApi::class. ':actualizarPedidoAPagar')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');
+        $this->post('/cerrado', \pedidosApi::class. ':actualizarPedidoMesaCerrado')->add(\MWparaAutentificar::class . ':VerificarPerfilSocio');        
     });
 
 
     $this->group('/productos', function(){
-        $this->get('/pendientes', \pedidosApi::class. ':traerProductosPendientes')->add(\MWparaAutentificar::class . ':VerificarJWT');
-        $this->post('/preparacion', \pedidosApi::class. ':actualizarEnPreparacion')->add(\MWparaAutentificar::class . ':VerificarJWT');
+        $this->get('/pendientes', \pedido_productoApi::class. ':traerProductosPendientes')->add(\MWparaAutentificar::class . ':VerificarJWT');
+
+        $this->post('/preparacion', \pedido_productoApi::class. ':actualizarProductoEnPreparacion')->add(\MWparaAutentificar::class . ':VerificarJWT');
+        $this->post('/listoServir', \pedido_productoApi::class. ':actualizarProductoListoParaServir')->add(\MWparaAutentificar::class . ':VerificarJWT');
+
+        $this->get('/listoServir', \pedido_productoApi::class. ':traerProductosListosParaServir')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');
+        $this->post('/servido', \pedido_productoApi::class. ':actualizarProductoServido')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');
     });
+
+
+    $this->group('/mesa', function(){
+        $this->get('/', \mesasApi::class. ':nuevaMesa')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');
+        $this->get('/todas', \mesasApi::class. ':traerTodas')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');
+        $this->post('/traerPorEstado', \mesasApi::class. ':traerPorEstado')->add(\MWparaAutentificar::class . ':VerificarMozoYSocio');
+        $this->post('/limpiar', \mesasApi::class. ':actualizarLimpia')->add(\MWparaAutentificar::class . ':VerificarJWT');
+    });
+
 
 
 })->add(\MWparaAutentificar::class . ':GuardarUsuarioRuta');

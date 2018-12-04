@@ -14,13 +14,33 @@ class login{
     public static function consultaLogin($arrayDeParametros){        
         $pdo = AccesoDatos::dameUnObjetoAcceso();
         
-        $sql = $pdo->RetornarConsulta("SELECT * FROM usuarios WHERE usuario=:usuario AND clave=:clave");
+        $sql = $pdo->RetornarConsulta("SELECT * FROM usuarios WHERE usuario=:usuario");
         $sql->bindValue(':usuario',$arrayDeParametros['usuario'], PDO::PARAM_STR);
-        $sql->bindValue(':clave', $arrayDeParametros['clave'], PDO::PARAM_STR);
         
         $sql->execute();
-        $resultado = $sql->fetchAll(PDO::FETCH_CLASS, 'login');
-        
+
+        $usuario = $sql->fetchAll(PDO::FETCH_CLASS, 'login');
+
+        if($usuario!=NULL){
+            if($usuario[0]->clave == $arrayDeParametros['clave']){
+                if($usuario[0]->estado ==1 || $usuario[0]->estado =="activo"){
+                    $resultado = $usuario;
+                }
+                else{
+                    $resultado="El usuario no esta activo";
+                }
+                
+            }
+            else{
+                $resultado="Clave no valida";
+            }
+        }
+        else{
+            $resultado = "Usuario no valido";
+        }
+
+        //var_dump($usuario[0]->clave); 
+
         return $resultado;
     }
 
@@ -56,6 +76,26 @@ class login{
         $resultado = $sql->fetchall(PDO::FETCH_CLASS, "login");       
 
         return $resultado;
+    }
+
+
+    public function actualizarEstadoUsuario($arrayDeParametros)
+    {
+        $pdo = AccesoDatos::dameUnObjetoAcceso();
+        try{
+            $sql =$pdo->RetornarConsulta("UPDATE usuarios
+            SET  estado= :estado
+            WHERE id=:id");
+            
+            $sql->bindValue(':id', $arrayDeParametros['id'], PDO::PARAM_INT);
+            $sql->bindValue(':estado', $arrayDeParametros['estado'], PDO::PARAM_INT);
+            $sql->execute();
+            return $sql->rowCount();
+        }
+        catch(Exception $e){
+            return $e->getMessage();
+        }
+        
     }
 
 

@@ -3,14 +3,12 @@ use \Firebase\JWT\JWT;
 require_once "./clases/AccesoDatos.php";
 
 class mesas{
-
-    public $prefijoME;
     public $id;
     public $estado;    
     public $limpia;
     
 
-    public static function crearmesas(){
+    public static function crearMesas(){
         $pdo = AccesoDatos::dameUnObjetoAcceso();
         try{
             $sql =$pdo->RetornarConsulta("INSERT into mesas (estado)values(1)");
@@ -40,7 +38,7 @@ class mesas{
 
         $pdo = AccesoDatos::dameUnObjetoAcceso();
         $sql = $pdo->RetornarConsulta("SELECT * FROM mesas WHERE id=:id");
-        $sql->bindValue(':id',$id, PDO::PARAM_STR);
+        $sql->bindValue(':id',$id, PDO::PARAM_INT);
         $sql->execute();
 
         $resultado = $sql->fetchall(PDO::FETCH_CLASS, "mesas");
@@ -49,12 +47,10 @@ class mesas{
     }
 
 
-    public static function TraerTodosPorLimpia($limpia){
-        //var_dump($limpia);
-
+    public static function TraerTodosPorLimpia($arrayDeParametros){
         $pdo = AccesoDatos::dameUnObjetoAcceso();
         $sql = $pdo->RetornarConsulta("SELECT * FROM mesas WHERE limpia=:limpia");
-        $sql->bindValue(':limpia',$limpia, PDO::PARAM_STR);
+        $sql->bindValue(':limpia',$arrayDeParametros["limpia"], PDO::PARAM_STR);
         $sql->execute();
 
         $resultado = $sql->fetchall(PDO::FETCH_CLASS, "mesas");
@@ -64,19 +60,24 @@ class mesas{
     }
 
 
-    /*
-    public static function TraerTodosPorestado(){
 
+    public function actualizarLimpiaMesa($arrayDeParametros)
+    {
         $pdo = AccesoDatos::dameUnObjetoAcceso();
-        $sql = $pdo->RetornarConsulta("select distinct `estado`, `id` FROM `mesas`");
-        $sql->execute();
-
-        $resultado = $sql->fetchall(PDO::FETCH_CLASS, "mesas");
+        try{
+            $sql =$pdo->RetornarConsulta("UPDATE mesas
+            SET  limpia= 1
+            WHERE id=:id");
+            
+            $sql->bindValue(':id', $arrayDeParametros['id'], PDO::PARAM_INT);
+            $sql->execute();
+            return $sql->rowCount();
+        }
+        catch(Exception $e){
+            return $e->getMessage();
+        }
         
-        return $resultado;
-    }      
-
-    */
+    }
 
 }
 ?>

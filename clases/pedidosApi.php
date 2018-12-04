@@ -69,33 +69,6 @@ class pedidosApi{
 
 
 
-    public function actualizarEnPreparacion($request, $response, $args){
-
-        $arrayDeParametros = $request->getParsedBody();
-        $arrayConToken = $request->getHeader('token');
-        $token=$arrayConToken[0];
-        $payload=AutJWT::ObtenerData($token);        
-        
-        $respuesta = pedido_producto::actualizarProductoEnPreparacion($arrayDeParametros, $payload[0]->id);
-        var_dump($respuesta);
-        var_dump($arrayDeParametros);
-        if($respuesta>0){
-
-            $objDelaRespuesta->respuesta="Nuevo producto en preparacion.";
-            $objDelaRespuesta->codigo=$arrayDeParametros["codigo"];
-            $objDelaRespuesta->idProducto=$arrayDeParametros["idProducto"];
-
-        }
-        else{
-            $objDelaRespuesta->respuesta=$respuesta;   
-        }
-        
-        return $response->withJson($objDelaRespuesta, 200);
-    }
-    
-
-
-
     public function traerTodos($request, $response, $args){   
         $pedidos = pedido::TraerTodos();
         $newResponse = $response->withJson($pedidos, 200);
@@ -116,56 +89,99 @@ class pedidosApi{
         return $newResponse;
     }
 
-    
 
-    //pedido_producto
 
-    public function traerProductosPendientes($request, $response){
-        $arrayConToken = $request->getHeader('token');
-	    $token=$arrayConToken[0];
-        $payload=AutJWT::ObtenerData($token);
-        //var_dump($payload);
-        //var_dump($payload[0]->email);
+    public function actualizarPedidoListoParaServir($request, $response, $args){
+
+        $arrayDeParametros = $request->getParsedBody();
         
-        $newResponse = pedido_producto::TraerProductosPorPerfil($payload[0]->perfil, $payload[0]->id);
-        return $response->withJson($newResponse, 200);
-    }
+        $respuesta = pedido::actualizarPedidoListoParaServir($arrayDeParametros);
 
-
-
-
-
-
-
- /*
-
-    public function traerUnoMarca($request, $response){
-        
-        $pedidos = pedido::TraerPorCodigo($_GET["marca"]);
-        //var_dump($pedidos);
-        $newResponse = $response->withJson($pedidos, 200);
-        return $newResponse;
-    }
-    
-   
-    public function traerProductos($request, $response){
-        
-        $listadoPedidos = pedido::TraerTodosProductos();
-        $output = array();
-        var_dump($listadoPedidos);
-        foreach($listadoPedidos as $pedido)
-        {
-            $objeto = "{'marca':".$pedido->marca.", 'modelo':". $pedido->modelo."}";
-            var_dump(json_decode($objeto));
-
-            array_push($output, $pedido->marca." ".$pedido->modelo);
+        if($respuesta>0){
+            $objDelaRespuesta->respuesta="Pedido listo para servir.";
+            $objDelaRespuesta->codigo=$arrayDeParametros["codigo"];
         }
-
-        $newResponse = $response->withJson($output, 200);
-        return $newResponse;
+        else{
+            if($respuesta==0){
+                $objDelaRespuesta->respuesta="El pedido aun tiene productos sin terminar";
+                $objDelaRespuesta->codigo=$arrayDeParametros["codigo"];
+            }else{
+                $objDelaRespuesta->respuesta=$respuesta;
+            }
+               
+        }
+        
+        return $response->withJson($objDelaRespuesta, 200);
     }
-    */
 
+
+
+    public function actualizarPedidoServido($request, $response, $args){
+
+        $arrayDeParametros = $request->getParsedBody();
+        
+        $respuesta = pedido::actualizarPedidoServido($arrayDeParametros);
+
+        if($respuesta>0){
+            $objDelaRespuesta->respuesta="Pedido Servido.";
+            $objDelaRespuesta->codigo=$arrayDeParametros["codigo"];
+        }
+        else{
+            if($respuesta==0){
+                $objDelaRespuesta->respuesta="El pedido aun tiene productos sin terminar";
+                $objDelaRespuesta->codigo=$arrayDeParametros["codigo"];
+            }else{
+                $objDelaRespuesta->respuesta=$respuesta;
+            }               
+        }        
+        return $response->withJson($objDelaRespuesta, 200);
+    }
+
+
+    public function actualizarPedidoAPagar($request, $response, $args){
+
+        $arrayDeParametros = $request->getParsedBody();
+        
+        $respuesta = pedido::actualizarPedidoAPagar($arrayDeParametros);
+
+        if($respuesta>0){
+            $objDelaRespuesta->respuesta="Ticket de pago entregado.";
+            $objDelaRespuesta->codigo=$arrayDeParametros["codigo"];
+        }
+        else{
+            if($respuesta==0){
+                $objDelaRespuesta->respuesta="El pedido aun tiene productos sin terminar";
+                $objDelaRespuesta->codigo=$arrayDeParametros["codigo"];
+            }else{
+                $objDelaRespuesta->respuesta=$respuesta;
+            }               
+        }        
+        return $response->withJson($objDelaRespuesta, 200);
+    }
+
+
+
+    public function actualizarPedidoMesaCerrado($request, $response, $args){
+
+        $arrayDeParametros = $request->getParsedBody();
+        
+        $respuesta = pedido::actualizarPedidoMesaCerrado($arrayDeParametros);
+
+        if($respuesta>0){
+            $objDelaRespuesta->respuesta="Pedido cobrado, mesa cerrada y lista para limpiar.";
+            $objDelaRespuesta->codigo=$arrayDeParametros["codigo"];
+        }
+        else{
+            if($respuesta==0){
+                $objDelaRespuesta->respuesta="El cliente aun no recibio su boleta de pago";
+                $objDelaRespuesta->codigo=$arrayDeParametros["codigo"];
+            }else{
+                $objDelaRespuesta->respuesta=$respuesta;
+            }               
+        }        
+        return $response->withJson($objDelaRespuesta, 200);
+    }
+    
 
 
 }

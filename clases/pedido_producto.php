@@ -82,8 +82,7 @@ class pedido_producto{
         }
         catch(Exception $e){
             return $e->getMessage();
-        }
-        
+        }        
     }
 
 
@@ -94,18 +93,27 @@ class pedido_producto{
         try{
             $sql =$pdo->RetornarConsulta("UPDATE pedido_producto AS pp
             INNER JOIN menu AS m ON pp.idProducto = m.id
+            INNER JOIN pedidos AS p ON pp.codigo = p.codigo
+            INNER JOIN mesas AS me ON me.id = p.mesa
             SET pp.precio = m.precio*pp.cantidad,
                 pp.tiempo = :tiempo,
                 pp.fechaTerminado=(pp.fechaInicio + INTERVAL :tiemposuma MINUTE),
                 pp.usuario = :usuario,
-                pp.estado= :estado
+                me.estado = 2,
+                me.limpia = 2,
+                pp.estado= 2,
+                p.estado= 2,
+                p.tiempo = IF(p.tiempo<:tiempoPedido,:tiempoPedido2, p.tiempo),
+                p.fechaTerminado = (p.fechaInicio + INTERVAL :tiemposuma2 MINUTE)
             WHERE pp.codigo=:codigo AND pp.idProducto=:idProducto");
             
             $sql->bindValue(':codigo', $arrayDeParametros['codigo'], PDO::PARAM_STR);
             $sql->bindValue(':usuario', $usuario, PDO::PARAM_INT);
-            $sql->bindValue(':estado', 2, PDO::PARAM_INT);
             $sql->bindValue(':tiempo', $arrayDeParametros['tiempo'], PDO::PARAM_INT);
+            $sql->bindValue(':tiempoPedido', $arrayDeParametros['tiempo'], PDO::PARAM_INT);
+            $sql->bindValue(':tiempoPedido2', $arrayDeParametros['tiempo'], PDO::PARAM_INT);
             $sql->bindValue(':tiemposuma', $arrayDeParametros['tiempo'], PDO::PARAM_INT);
+            $sql->bindValue(':tiemposuma2', $arrayDeParametros['tiempo'], PDO::PARAM_INT);
             $sql->bindValue(':idProducto', $arrayDeParametros['idProducto'], PDO::PARAM_INT);
 
             $sql->execute();
@@ -116,6 +124,55 @@ class pedido_producto{
         }
         
     }
+
+
+
+    public function actualizarProductoListoParaServir($arrayDeParametros)
+    {
+        $pdo = AccesoDatos::dameUnObjetoAcceso();
+        try{
+            $sql =$pdo->RetornarConsulta("UPDATE pedido_producto
+            SET  estado= 3
+            WHERE codigo=:codigo AND idProducto=:idProducto AND estado=2");
+            
+            $sql->bindValue(':codigo', $arrayDeParametros['codigo'], PDO::PARAM_STR);
+            $sql->bindValue(':idProducto', $arrayDeParametros['idProducto'], PDO::PARAM_INT);
+
+            $sql->execute();
+            return $sql->rowCount();
+        }
+        catch(Exception $e){
+            return $e->getMessage();
+        }
+        
+    }
+
+
+
+    public function actualizarProductoServido($arrayDeParametros)
+    {
+        $pdo = AccesoDatos::dameUnObjetoAcceso();
+        try{
+            $sql =$pdo->RetornarConsulta("UPDATE pedido_producto AS pp
+            INNER JOIN pedidos AS p ON pp.codigo = p.codigo
+            INNER JOIN mesas AS me ON me.id = p.mesa
+            SET pp.estado = 4,
+                me.estado = 3
+            WHERE pp.codigo=:codigo AND pp.idProducto=:idProducto");
+            
+            $sql->bindValue(':codigo', $arrayDeParametros['codigo'], PDO::PARAM_STR);
+            $sql->bindValue(':idProducto', $arrayDeParametros['idProducto'], PDO::PARAM_INT);
+
+            $sql->execute();
+            return $sql->rowCount();
+        }
+        catch(Exception $e){
+            return $e->getMessage();
+        }
+    }
+
+
+
 
 
 
@@ -130,10 +187,11 @@ class pedido_producto{
     }    
 
 
+
     public static function TraerPorCodigo($codigo){
 
         $pdo = AccesoDatos::dameUnObjetoAcceso();
-        $sql = $pdo->RetornarConsulta("SELECT * FROM pedidos WHERE codigo=:codigo");
+        $sql = $pdo->RetornarConsulta("SELECT * FROM pedido_producto WHERE codigo=:codigo");
         $sql->bindValue(':codigo',$codigo, PDO::PARAM_STR);
         $sql->execute();
 
@@ -141,6 +199,7 @@ class pedido_producto{
         
         return $resultado;
     }
+
 
 
     public static function TraerProductosPorPerfil($perfil, $idUsuario){
@@ -180,7 +239,6 @@ class pedido_producto{
 
     }
 
-
     
 
 
@@ -195,9 +253,35 @@ class pedido_producto{
         $resultado = $sql->fetchall(PDO::FETCH_OBJ);
         
         return $resultado;
-
     }
 
+
+    public static function TraerListosParaServirPorUsuario($usuario){
+        //var_dump($usuario);
+
+        $pdo = AccesoDatos::dameUnObjetoAcceso();
+        $sql = $pdo->RetornarConsulta("SELECT pp.codigo, pp.idProducto, pp.cantidad, pp.fechaTerminado, p.mesa, p.cliente FROM pedido_producto AS pp INNER JOIN pedidos AS p ON pp.codigo = p.codigo WHERE pp.estado=3 AND p.usuario=:usuario");
+        $sql->bindValue(':usuario',$usuario, PDO::PARAM_STR);
+        $sql->execute();
+
+        $resultado = $sql->fetchall(PDO::FETCH_OBJ);
+        
+        return $resultado;
+    }
+
+
+
+    public static function TraerSumaPrecioPorCodigo($codigo){
+
+        $pdo = AccesoDatos::dameUnObjetoAcceso();
+        $sql = $pdo->RetornarConsulta("SELECT SUM(precio) AS precioFinal FROM pedido_producto WHERE codigo=:codigo");
+        $sql->bindValue(':codigo',$codigo, PDO::PARAM_STR);
+        $sql->execute();
+
+        $resultado = $sql->fetchall(PDO::FETCH_OBJ);
+        
+        return $resultado[0]->precioFinal;
+    }
 
 
 

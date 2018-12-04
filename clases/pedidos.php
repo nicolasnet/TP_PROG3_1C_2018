@@ -115,6 +115,104 @@ class pedido{
         
         return $resultado;
     }
+
+
+
+    public function actualizarPedidoListoParaServir($arrayDeParametros)
+    {
+        $precioFinal = pedido_producto::TraerSumaPrecioPorCodigo($arrayDeParametros['codigo']);
+
+        $pdo = AccesoDatos::dameUnObjetoAcceso();
+        try{
+            $sql =$pdo->RetornarConsulta("UPDATE pedidos AS p
+            INNER JOIN pedido_producto AS pp ON pp.codigo = p.codigo
+            SET p.estado= 3,
+                p.precioFinal = :precioFinal
+            WHERE p.codigo=:codigo AND pp.estado=3");
+            
+            $sql->bindValue(':codigo', $arrayDeParametros['codigo'], PDO::PARAM_STR);
+            $sql->bindValue(':precioFinal', $precioFinal, PDO::PARAM_INT);
+
+            $sql->execute();
+            return $sql->rowCount();
+        }
+        catch(Exception $e){
+            return $e->getMessage();
+        }
+        
+    }
+
+
+
+    public function actualizarPedidoServido($arrayDeParametros)
+    {
+        $pdo = AccesoDatos::dameUnObjetoAcceso();
+        try{
+            $sql =$pdo->RetornarConsulta("UPDATE pedidos AS p
+            INNER JOIN pedido_producto AS pp ON pp.codigo = p.codigo
+            INNER JOIN mesas AS me ON me.id = p.mesa
+            SET p.estado= 4,
+                me.estado=3,
+                me.limpia=2,
+                pp.estado=4
+            WHERE p.codigo=:codigo AND p.estado = 3");
+            
+            $sql->bindValue(':codigo', $arrayDeParametros['codigo'], PDO::PARAM_STR);
+            $sql->execute();
+            return $sql->rowCount();
+        }
+        catch(Exception $e){
+            return $e->getMessage();
+        }        
+    }
+
+
+
+    public function actualizarPedidoAPagar($arrayDeParametros)
+    {
+        $pdo = AccesoDatos::dameUnObjetoAcceso();
+        try{
+            $sql =$pdo->RetornarConsulta("UPDATE pedidos AS p
+            INNER JOIN mesas AS me ON me.id = p.mesa
+            SET me.estado=4,
+                me.limpia=2
+            WHERE p.codigo=:codigo AND me.estado = 3 AND p.estado=4");
+            
+            $sql->bindValue(':codigo', $arrayDeParametros['codigo'], PDO::PARAM_STR);
+            $sql->execute();
+            return $sql->rowCount();
+        }
+        catch(Exception $e){
+            return $e->getMessage();
+        }        
+    }
+
+
+
+    public function actualizarPedidoMesaCerrado($arrayDeParametros)
+    {
+        $pdo = AccesoDatos::dameUnObjetoAcceso();
+        try{
+            $sql =$pdo->RetornarConsulta("UPDATE pedidos AS p
+            INNER JOIN mesas AS me ON me.id = p.mesa
+            SET me.estado=1,
+                me.limpia=2,
+                p.estado = 5
+            WHERE p.codigo=:codigo AND me.estado = 4 AND p.estado=4");
+            
+            $sql->bindValue(':codigo', $arrayDeParametros['codigo'], PDO::PARAM_STR);
+            $sql->execute();
+            return $sql->rowCount();
+        }
+        catch(Exception $e){
+            return $e->getMessage();
+        }        
+    }
+
+
+
+
+
 }
 
 
